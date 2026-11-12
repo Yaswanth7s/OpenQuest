@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Opportunity | CampusCollab</title>
+</head>
+<body>
+
+    <h1>Apply for Opportunity</h1>
+
+    <h2>{{ opportunity.title }}</h2>
+
+    <p>{{ opportunity.description }}</p>
+
+    <p>
+        <strong>Organization:</strong>
+        {{ opportunity.organization.organization_name }}
+    </p>
+
+    <p>
+        <strong>Opportunity Type:</strong>
+        {{ opportunity.get_opportunity_type_display }}
+    </p>
+
+    <p>
+        <strong>Work Mode:</strong>
+        {{ opportunity.get_work_mode_display }}
+    </p>
+
+    <hr>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Submit Application</button>
+    </form>
+
+    <a href="/">Back to Home</a>
+
+</body>
+</html>

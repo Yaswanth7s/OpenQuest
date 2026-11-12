@@ -1,0 +1,96 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ account_type }} Registration | CampusCollab</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <a href="{% url 'home' %}" class="brand">
+            CampusCollab.
+        </a>
+
+        <nav class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+        </nav>
+    </header>
+
+
+    <main class="container">
+
+        <div class="section-heading">
+            <h2>Create Your {{ account_type }} Account</h2>
+
+            <p>
+                Join CampusCollab and start connecting, collaborating
+                and creating.
+            </p>
+        </div>
+
+
+        <div class="opportunity-card">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+
+                    <div class="form-group">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small>{{ field.help_text|safe }}</small>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+
+                    </div>
+
+                {% endfor %}
+
+
+                <button type="submit" class="primary-button">
+                    Create Account
+                </button>
+
+            </form>
+
+        </div>
+
+        <p style="text-align:center; margin-top:20px;">
+            Already have an account?
+            <a href="#" style="color:#4f46e5;">
+                Login coming soon
+            </a>
+        </p>
+
+    </main>
+
+
+    <footer class="footer">
+        <p>© 2026 CampusCollab. Connect. Collaborate. Create.</p>
+    </footer>
+
+</body>
+</html>

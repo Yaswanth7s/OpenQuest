@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Opportunity | CampusCollab</title>
+</head>
+<body>
+
+    <h1>Create a New Opportunity</h1>
+
+    <p>Share an internship or job opportunity with students.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Publish Opportunity</button>
+    </form>
+
+    <a href="/">Back to Home</a>
+
+</body>
+</html>

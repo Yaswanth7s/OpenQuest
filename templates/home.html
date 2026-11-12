@@ -1,0 +1,164 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CampusCollab | Connect. Collaborate. Create.</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+
+        <a href="{% url 'home' %}" class="brand">
+            CampusCollab.
+        </a>
+
+        <nav class="nav-links">
+
+            <a href="{% url 'home' %}">Home</a>
+
+            <a href="#opportunities">Explore</a>
+
+            <a href="/admin/">Admin</a>
+
+            <a href="{% url 'create_opportunity' %}" class="nav-button">
+                Post Opportunity
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- Hero Section -->
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <span class="hero-tag">
+                A Platform for Ideas and Innovation
+            </span>
+
+            <h1>
+                Connect. Collaborate.
+                <span>Create.</span>
+            </h1>
+
+            <p>
+                Discover meaningful opportunities, collaborate with talented
+                people, build innovative solutions, and turn your ideas into
+                real-world impact.
+            </p>
+
+            <a href="#opportunities" class="primary-button">
+                Explore Opportunities
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- Opportunities Section -->
+    <main class="container" id="opportunities">
+
+        <div class="section-heading">
+
+            <h2>Discover Opportunities</h2>
+
+            <p>
+                Explore internships and job opportunities shared by
+                verified organizations.
+            </p>
+
+        </div>
+
+
+        {% if opportunities %}
+
+            <div class="opportunity-grid">
+
+                {% for opportunity in opportunities %}
+
+                    <article class="opportunity-card">
+
+                        <span class="card-label">
+                            {{ opportunity.get_opportunity_type_display }}
+                        </span>
+
+                        <h3>
+                            {{ opportunity.title }}
+                        </h3>
+
+                        <p class="card-organization">
+                            {{ opportunity.organization.organization_name }}
+                        </p>
+
+                        <p>
+                            {{ opportunity.description }}
+                        </p>
+
+                        <p>
+                            <strong>Work Mode:</strong>
+                            {{ opportunity.get_work_mode_display }}
+                        </p>
+
+                        <p>
+                            <strong>Location:</strong>
+                            {{ opportunity.location|default:"Not specified" }}
+                        </p>
+
+                        <p>
+                            <strong>Required Skills:</strong>
+                            {{ opportunity.required_skills|default:"Not specified" }}
+                        </p>
+
+                        <a
+                            href="{% url 'apply_for_opportunity' opportunity.id %}"
+                            class="card-button"
+                        >
+                            Apply Now →
+                        </a>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>No opportunities available right now</h3>
+
+                <p>
+                    New opportunities from verified organizations will
+                    appear here. Please check back soon!
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+
+        <p>
+            © 2026 CampusCollab. Connect. Collaborate. Create.
+        </p>
+
+    </footer>
+
+</body>
+</html>
