@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Post a challenge — OpenQuest{% endblock %}
+
+{% block content %}
+<main class="form-page community-form-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> The world needs your question</span>
+        <h1>Make a little<br>room for<br><em>possibility.</em></h1>
+        <p>Tell people what needs solving. The right team might be closer than you think.</p>
+        <div class="aside-tip"><span aria-hidden="true">✳</span><p><strong>Good challenges are clear</strong><br>Explain the problem, who it affects, and what a great outcome might look like.</p></div>
+        <span class="aside-note">OPENQUEST / COMMUNITY CHALLENGE</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">START A COMMUNITY QUEST</span>
+            <h2>What should we solve?</h2>
+            <p>Your challenge will be visible to the OpenQuest community.</p>
+        </div>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <p class="form-footnote"><span aria-hidden="true">*</span> Required fields. Your challenge starts open; you can update its status later.</p>
+            <button type="submit" class="button button-coral form-submit">Publish challenge <span aria-hidden="true">↗</span></button>
+        </form>
+    </section>
+</main>
+{% endblock %}

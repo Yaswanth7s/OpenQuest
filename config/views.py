@@ -1,6 +1,6 @@
 
 from django.shortcuts import render
-from opportunities.models import Opportunity
+from opportunities.models import Application, Opportunity
 
 
 def home(request):
@@ -12,8 +12,17 @@ def home(request):
         'organization'
     ).order_by('-created_at')
 
+    applied_opportunity_ids = set()
+    if request.user.is_authenticated and request.user.role == 'INDIVIDUAL':
+        applied_opportunity_ids = set(
+            Application.objects.filter(
+                applicant=request.user,
+            ).values_list('opportunity_id', flat=True)
+        )
+
     context = {
-        'opportunities': opportunities
+        'opportunities': opportunities,
+        'applied_opportunity_ids': applied_opportunity_ids,
     }
 
     return render(

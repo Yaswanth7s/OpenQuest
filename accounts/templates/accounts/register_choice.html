@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Choose your OpenQuest account{% endblock %}
+
+{% block content %}
+<main class="account-choice-page">
+    <header class="account-choice-heading">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> Find your place in the quest</span>
+        <h1>How will you <em>make a difference?</em></h1>
+        <p>Choose the account that fits what you’re here to do.</p>
+    </header>
+    <section class="account-choice-grid" aria-label="Choose an account type">
+        <article class="account-choice-card choice-individual">
+            <span class="choice-number">01 / FOR PEOPLE</span>
+            <span class="choice-symbol" aria-hidden="true">✳</span>
+            <h2>I’m here to<br><em>make things.</em></h2>
+            <p>Discover opportunities, build your profile, and team up with people who want to solve real challenges.</p>
+            <a href="{% url 'register_individual' %}" class="button button-dark">Join as an individual <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="account-choice-card choice-organization">
+            <span class="choice-number">02 / FOR ORGANIZATIONS</span>
+            <span class="choice-symbol" aria-hidden="true">↗</span>
+            <h2>I’m here to<br><em>find great people.</em></h2>
+            <p>Share opportunities with curious talent and build a team around work that matters.</p>
+            <a href="{% url 'register_organization' %}" class="button button-paper">Join as an organization <span aria-hidden="true">↗</span></a>
+        </article>
+    </section>
+    <p class="form-switch account-choice-switch">Already part of the quest? <a href="{% url 'login' %}">Log in ↗</a></p>
+</main>
+{% endblock %}

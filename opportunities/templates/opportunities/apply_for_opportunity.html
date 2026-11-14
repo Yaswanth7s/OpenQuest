@@ -1,45 +1,57 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apply for Opportunity | CampusCollab</title>
-</head>
-<body>
+{% block title %}Apply — {{ opportunity.title }} — OpenQuest{% endblock %}
 
-    <h1>Apply for Opportunity</h1>
+{% block content %}
+<main class="form-page apply-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> This could be the one</span>
+        <h1>Show them<br>what makes<br><em>you, you.</em></h1>
+        <p>A thoughtful note goes a long way. Tell them what drew you to this work and what you’d bring to it.</p>
+        <div class="role-preview">
+            <span class="role-preview-tag">{{ opportunity.get_opportunity_type_display }} · {{ opportunity.get_work_mode_display }}</span>
+            <h2>{{ opportunity.title }}</h2>
+            <p>{{ opportunity.organization.organization_name }}</p>
+            {% if opportunity.location %}<span class="role-location">⌖ {{ opportunity.location }}</span>{% endif %}
+        </div>
+        <span class="aside-note">OPENQUEST / YOUR NEXT CHAPTER</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">YOUR APPLICATION</span>
+            <h2>Make your introduction.</h2>
+            <p>Share a little about why this opportunity feels right for you.</p>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="styled-form" data-submit-label="Sending your application…">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group{% if field.field.widget.input_type == 'file' %} form-group-file{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.field.widget.input_type == 'file' %}<span class="file-hint" data-file-name>No file chosen yet</span>{% endif %}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <p class="form-footnote">Your details will only be shared with this organization.</p>
+            <button type="submit" class="button button-coral form-submit">Send my application <span aria-hidden="true">↗</span></button>
+        </form>
+    </section>
+</main>
+{% endblock %}
 
-    <h2>{{ opportunity.title }}</h2>
-
-    <p>{{ opportunity.description }}</p>
-
-    <p>
-        <strong>Organization:</strong>
-        {{ opportunity.organization.organization_name }}
-    </p>
-
-    <p>
-        <strong>Opportunity Type:</strong>
-        {{ opportunity.get_opportunity_type_display }}
-    </p>
-
-    <p>
-        <strong>Work Mode:</strong>
-        {{ opportunity.get_work_mode_display }}
-    </p>
-
-    <hr>
-
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        {{ form.as_p }}
-
-        <button type="submit">Submit Application</button>
-    </form>
-
-    <a href="/">Back to Home</a>
-
-</body>
-</html>
+{% block extra_scripts %}
+<script>
+    document.querySelectorAll('input[type="file"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var label = input.parentElement.querySelector('[data-file-name]');
+            if (label) {
+                label.textContent = input.files.length ? input.files[0].name : 'No file chosen yet';
+            }
+        });
+    });
+</script>
+{% endblock %}

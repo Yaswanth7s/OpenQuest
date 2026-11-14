@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 
 class Challenge(models.Model):
@@ -213,16 +215,30 @@ class Submission(models.Model):
         return self.title
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-
-        if self.team and self.challenge:
+        if self.team_id and self.challenge_id:
 
             if self.team.challenge != self.challenge:
                 raise ValidationError({
                     'team': 'The selected team does not belong to this challenge.'
                 })
 
-        if self.team and self.submitted_by:
+            if self.challenge.status not in (
+                Challenge.Status.OPEN,
+                Challenge.Status.IN_PROGRESS,
+            ):
+                raise ValidationError({
+                    'challenge': 'This challenge is not accepting submissions.'
+                })
+
+            if (
+                self.challenge.deadline
+                and self.challenge.deadline < timezone.localdate()
+            ):
+                raise ValidationError({
+                    'challenge': 'The challenge deadline has passed.'
+                })
+
+        if self.team_id and self.submitted_by_id:
 
             is_member = TeamMembership.objects.filter(
                 team=self.team,
@@ -274,9 +290,7 @@ class Review(models.Model):
         ]
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-
-        if self.reviewer:
+        if self.reviewer_id:
             is_admin = self.reviewer.is_staff or self.reviewer.is_superuser
 
             is_approved_organization = (

@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+
 from .models import Opportunity, Application
 
 
@@ -34,6 +37,20 @@ class OpportunityAdmin(admin.ModelAdmin):
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
+    fields = (
+        'applicant',
+        'opportunity',
+        'cover_letter',
+        'resume_download',
+        'status',
+        'applied_at',
+        'updated_at',
+    )
+    readonly_fields = (
+        'resume_download',
+        'applied_at',
+        'updated_at',
+    )
 
     list_display = (
         'id',
@@ -54,3 +71,12 @@ class ApplicationAdmin(admin.ModelAdmin):
     )
 
     ordering = ('-applied_at',)
+
+    @admin.display(description='Resume')
+    def resume_download(self, application):
+        if not application.resume:
+            return 'No resume attached'
+        return format_html(
+            '<a href="{}">Download resume</a>',
+            reverse('download_resume', args=(application.pk,)),
+        )

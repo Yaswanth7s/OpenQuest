@@ -1,5 +1,7 @@
 
 from django import forms
+from django.utils import timezone
+
 from .models import Opportunity, Application
 
 class OpportunityForm(forms.ModelForm):
@@ -43,11 +45,13 @@ class OpportunityForm(forms.ModelForm):
             }),
         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-
-        return cleaned_data
-
+    def clean_application_deadline(self):
+        deadline = self.cleaned_data.get('application_deadline')
+        if deadline and deadline < timezone.localdate():
+            raise forms.ValidationError(
+                'The application deadline cannot be in the past.'
+            )
+        return deadline
 
 
 class ApplicationForm(forms.ModelForm):
@@ -73,4 +77,29 @@ class ApplicationForm(forms.ModelForm):
 
         self.instance.opportunity = opportunity
         self.instance.applicant = applicant
+
+
+class ApplicationStatusForm(forms.Form):
+    status = forms.ChoiceField(
+        choices=(
+            ('', 'Choose a status'),
+            (
+                Application.ApplicationStatus.UNDER_REVIEW,
+                Application.ApplicationStatus.UNDER_REVIEW.label,
+            ),
+            (
+                Application.ApplicationStatus.SHORTLISTED,
+                Application.ApplicationStatus.SHORTLISTED.label,
+            ),
+            (
+                Application.ApplicationStatus.REJECTED,
+                Application.ApplicationStatus.REJECTED.label,
+            ),
+            (
+                Application.ApplicationStatus.ACCEPTED,
+                Application.ApplicationStatus.ACCEPTED.label,
+            ),
+        ),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
 

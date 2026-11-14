@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import User, OrganizationProfile
+from .models import Profile, User, OrganizationProfile
 
 
 class BaseRegistrationForm(UserCreationForm):
@@ -105,6 +105,43 @@ class OrganizationProfileForm(forms.ModelForm):
             'registration_number': forms.TextInput(attrs={
                 'placeholder': 'Enter registration number',
                 'class': 'form-control'
+            }),
+        }
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = (
+            'profile_picture',
+            'bio',
+            'location',
+            'skills',
+            'website',
+        )
+        widgets = {
+            'profile_picture': forms.ClearableFileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+            }),
+            'bio': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'maxlength': 500,
+                'placeholder': 'A little about what you care about and want to build.',
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'City, region, or remote',
+            }),
+            'skills': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Design, research, Python, community building…',
+            }),
+            'website': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://your-site.example',
             }),
         }
 

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Start a team — {{ challenge.title }}{% endblock %}
+
+{% block content %}
+<main class="form-page community-form-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> Better ideas happen together</span>
+        <h1>Bring your<br>people to<br><em>the problem.</em></h1>
+        <p>Start a team for <strong>{{ challenge.title }}</strong>. You’ll become its first member and team lead.</p>
+        <span class="aside-note">OPENQUEST / BUILD A TEAM</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">A TEAM FOR THIS CHALLENGE</span>
+            <h2>Give your team a name.</h2>
+            <p>Keep it memorable. You can invite others once it’s created.</p>
+        </div>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button button-coral form-submit">Create team <span aria-hidden="true">↗</span></button>
+        </form>
+    </section>
+</main>
+{% endblock %}

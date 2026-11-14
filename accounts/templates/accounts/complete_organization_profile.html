@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Organization profile — OpenQuest{% endblock %}
+
+{% block content %}
+<main class="form-page profile-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> A better kind of opportunity</span>
+        <h1>Let’s meet<br>the people<br>behind <em>the work.</em></h1>
+        <p>Tell us about your organization so we can make sure every opportunity here is the real deal.</p>
+        <div class="profile-steps">
+            <div class="profile-step profile-step-active"><span>01</span><div><strong>Your details</strong><small>Tell us who you are</small></div><b aria-hidden="true">✓</b></div>
+            <div class="profile-step"><span>02</span><div><strong>Our review</strong><small>We verify your organization</small></div></div>
+            <div class="profile-step"><span>03</span><div><strong>Meet your people</strong><small>Post your first opportunity</small></div></div>
+        </div>
+        <span class="aside-note">OPENQUEST / ORGANIZATION VERIFICATION</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">01 <span></span> ORGANIZATION DETAILS</span>
+            <h2>Make it official.</h2>
+            <p>Share a few details. We’ll review your profile before it goes live.</p>
+        </div>
+        <div class="review-note"><span class="review-icon" aria-hidden="true">✳</span><p><strong>A quick note on verification</strong><br>Your information is only used to confirm your organization. It won’t be shown publicly without your approval.</p></div>
+        {% if user.organization_status == 'REJECTED' and user.organization_profile.admin_remarks %}
+            <div class="form-errors" role="status"><strong>Notes from our review team:</strong> {{ user.organization_profile.admin_remarks }}</div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" class="styled-form" data-submit-label="Sending for review…">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group{% if field.field.widget.input_type == 'file' %} form-group-file{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.field.widget.input_type == 'file' %}<span class="file-hint" data-file-name>No file chosen yet</span>{% endif %}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <p class="form-footnote"><span aria-hidden="true">*</span> Required fields. Your profile will be reviewed by our team.</p>
+            <button type="submit" class="button button-coral form-submit">Send for review <span aria-hidden="true">↗</span></button>
+        </form>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.querySelectorAll('input[type="file"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var label = input.parentElement.querySelector('[data-file-name]');
+            if (label) {
+                label.textContent = input.files.length ? input.files[0].name : 'No file chosen yet';
+            }
+        });
+    });
+</script>
+{% endblock %}

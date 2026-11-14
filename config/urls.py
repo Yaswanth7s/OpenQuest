@@ -18,6 +18,8 @@ Including another URLconf
 
 
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
 from . import views
 
@@ -38,4 +40,15 @@ urlpatterns = [
         include('opportunities.urls')
     ),
 
+    path(
+        'community/',
+        include('community.urls')
+    ),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        f'{settings.MEDIA_URL}profile_pictures/',
+        document_root=settings.MEDIA_ROOT / 'profile_pictures'
+    )

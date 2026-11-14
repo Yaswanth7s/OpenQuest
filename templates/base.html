@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#191817">
+    <title>{% block title %}OpenQuest — make something matter{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <a href="{% url 'home' %}" class="brand" aria-label="OpenQuest home">
+            <span class="brand-mark" aria-hidden="true">o</span>
+            <span>open<span class="brand-accent">quest</span></span>
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+            <a href="{% url 'home' %}#opportunities">Explore</a>
+            {% if not user.is_authenticated or user.role == 'INDIVIDUAL' %}
+                <a href="{% url 'community:challenge_list' %}">Challenges</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}">My profile</a>
+                {% if user.role == 'INDIVIDUAL' %}
+                    <a href="{% url 'community:create_challenge' %}">Post a challenge</a>
+                    <a href="{% url 'my_applications' %}">My applications</a>
+                {% elif user.role == 'ORGANIZATION' and user.organization_status == 'APPROVED' %}
+                    <a href="{% url 'organization_dashboard' %}">Organization dashboard</a>
+                {% endif %}
+                {% if user.role == 'ORGANIZATION' and user.organization_status == 'PENDING' %}
+                    {% if user.organization_profile %}
+                        <span class="nav-greeting">Verification pending</span>
+                    {% else %}
+                        <a href="{% url 'complete_organization_profile' %}">Organization profile</a>
+                    {% endif %}
+                {% elif user.role == 'ORGANIZATION' and user.organization_status == 'REJECTED' %}
+                    <a href="{% url 'complete_organization_profile' %}">Update organization profile</a>
+                {% elif user.role == 'ORGANIZATION' and user.organization_status == 'APPROVED' %}
+                    <a href="{% url 'create_opportunity' %}">Post an opportunity</a>
+                {% endif %}
+                <span class="nav-greeting">Hi, {{ user.username }}</span>
+                <form method="post" action="{% url 'logout' %}" class="nav-logout">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link-button">Log out <span aria-hidden="true">↗</span></button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Log in</a>
+                <a href="{% url 'register' %}" class="nav-cta">Join OpenQuest <span aria-hidden="true">↗</span></a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% if messages %}
+        <div class="message-stack" aria-live="polite">
+            {% for message in messages %}
+                <div class="notice notice-{{ message.tags|default:'info' }}" role="status">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    <footer class="site-footer">
+        <a href="{% url 'home' %}" class="footer-brand">open<span>quest</span></a>
+        <p>Good things happen when curious people meet.</p>
+        <span>© 2026 OpenQuest</span>
+    </footer>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 from .models import Challenge, Comment, Team, TeamMembership, Submission, Review
 
 
@@ -95,6 +97,24 @@ class TeamMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
+    fields = (
+        'title',
+        'challenge',
+        'team',
+        'submitted_by',
+        'description',
+        'github_url',
+        'demo_url',
+        'attachment_download',
+        'status',
+        'submitted_at',
+        'updated_at',
+    )
+    readonly_fields = (
+        'attachment_download',
+        'submitted_at',
+        'updated_at',
+    )
 
     list_display = (
         'id',
@@ -117,6 +137,18 @@ class SubmissionAdmin(admin.ModelAdmin):
         'status',
         'submitted_at'
     )
+
+    @admin.display(description='Attachment')
+    def attachment_download(self, submission):
+        if not submission.attachment:
+            return 'No attachment'
+        return format_html(
+            '<a href="{}">Download attachment</a>',
+            reverse(
+                'community:download_submission_attachment',
+                args=(submission.challenge_id, submission.pk),
+            ),
+        )
 
 
 @admin.register(Review)

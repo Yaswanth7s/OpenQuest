@@ -102,10 +102,10 @@ class OrganizationProfile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def clean(self):
-            if self.user and self.user.role != User.Role.ORGANIZATION:
-                raise ValidationError(
-                    "Only organization accounts can have an organization profile."
-                )
+        if self.user_id and self.user.role != User.Role.ORGANIZATION:
+            raise ValidationError(
+                "Only organization accounts can have an organization profile."
+            )
 
     def __str__(self):
         return self.organization_name

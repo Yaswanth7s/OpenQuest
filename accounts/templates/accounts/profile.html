@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Your profile — OpenQuest{% endblock %}
+
+{% block content %}
+<main class="form-page profile-edit-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> A little more you</span>
+        <h1>Make it<br>easy for<br><em>your people.</em></h1>
+        <p>Share what you’re good at, what you’re curious about, and what you want to make next.</p>
+        {% if profile.profile_picture %}
+            <img class="profile-avatar-preview" src="{{ profile.profile_picture.url }}" alt="Your profile photo">
+        {% else %}
+            <div class="profile-avatar-placeholder" aria-hidden="true">{{ user.username|slice:":1"|upper }}</div>
+        {% endif %}
+        <span class="aside-note">OPENQUEST / YOUR PROFILE</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">YOUR OPENQUEST PROFILE</span>
+            <h2>Show up as yourself.</h2>
+            <p>A few details help other people find the right collaborator.</p>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="styled-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button button-coral form-submit">Save my profile <span aria-hidden="true">↗</span></button>
+        </form>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Community challenges — OpenQuest{% endblock %}
+
+{% block content %}
+<main class="community-page">
+    <section class="community-hero">
+        <div>
+            <span class="eyebrow"><span class="eyebrow-dot"></span> Make something that matters</span>
+            <h1>Find a problem.<br><em>Make it better.</em></h1>
+            <p>Join curious people turning real-world challenges into work worth sharing.</p>
+        </div>
+        {% if user.is_authenticated and user.role == 'INDIVIDUAL' %}
+            <a href="{% url 'community:create_challenge' %}" class="button button-coral">Post a challenge <span aria-hidden="true">↗</span></a>
+        {% else %}
+            {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}?next={% url 'community:create_challenge' %}" class="button button-coral">Log in to post <span aria-hidden="true">↗</span></a>
+            {% endif %}
+        {% endif %}
+    </section>
+
+    <section class="challenge-browser">
+        <form method="get" class="challenge-filters" role="search">
+            <label class="filter-search">
+                <span class="sr-only">Search challenges</span>
+                <input type="search" name="q" value="{{ query }}" placeholder="Search challenges, topics, places…">
+            </label>
+            <label>
+                <span class="sr-only">Filter by category</span>
+                <select name="category">
+                    <option value="">All categories</option>
+                    {% for value, label in categories %}
+                        <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span class="sr-only">Filter by type</span>
+                <select name="type">
+                    <option value="">All challenge types</option>
+                    {% for value, label in challenge_types %}
+                        <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span class="sr-only">Filter by status</span>
+                <select name="status">
+                    <option value="ALL" {% if selected_status == 'ALL' %}selected{% endif %}>Any status</option>
+                    {% for value, label in challenge_statuses %}
+                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit" class="button button-dark">Filter <span aria-hidden="true">⌕</span></button>
+        </form>
+
+        <div class="challenge-results-heading">
+            <h2>Open quests <span aria-hidden="true">✳</span></h2>
+            <span>{{ challenges|length }} found</span>
+        </div>
+        {% if challenges %}
+            <div class="challenge-grid">
+                {% for challenge in challenges %}
+                    <article class="challenge-card">
+                        <div class="challenge-card-top">
+                            <span class="challenge-category">{{ challenge.get_category_display }}</span>
+                            <span class="challenge-status status-{{ challenge.status|lower }}">{{ challenge.get_status_display }}</span>
+                        </div>
+                        <h3><a href="{% url 'community:challenge_detail' challenge.id %}">{{ challenge.title }}</a></h3>
+                        <p class="challenge-card-type">{{ challenge.get_challenge_type_display }}</p>
+                        <p class="challenge-card-description">{{ challenge.description|truncatewords:28 }}</p>
+                        <div class="challenge-card-meta">
+                            <span>By {{ challenge.created_by.username }}</span>
+                            <span>{{ challenge.team_count }} team{{ challenge.team_count|pluralize }} · {{ challenge.comment_count }} comment{{ challenge.comment_count|pluralize }}</span>
+                        </div>
+                        <div class="challenge-card-bottom">
+                            <span>{% if challenge.location %}⌖ {{ challenge.location }}{% else %}Anywhere / online{% endif %}</span>
+                            {% if challenge.deadline %}<span>Until {{ challenge.deadline|date:"M j" }}</span>{% endif %}
+                        </div>
+                        <a href="{% url 'community:challenge_detail' challenge.id %}" class="card-button">See the challenge <span aria-hidden="true">↗</span></a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state challenge-empty">
+                <span class="empty-spark" aria-hidden="true">✳</span>
+                <h3>No matching challenges yet.</h3>
+                <p>Try a different search or start one of your own.</p>
+                {% if user.is_authenticated and user.role == 'INDIVIDUAL' %}<a href="{% url 'community:create_challenge' %}" class="card-button">Start a challenge <span aria-hidden="true">↗</span></a>{% endif %}
+            </div>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

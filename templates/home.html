@@ -1,164 +1,130 @@
+{% extends "base.html" %}
 
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}OpenQuest — make something matter{% endblock %}
 
-    <title>CampusCollab | Connect. Collaborate. Create.</title>
-
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-
-<body>
-
-    <!-- Navigation Bar -->
-    <header class="navbar">
-
-        <a href="{% url 'home' %}" class="brand">
-            CampusCollab.
-        </a>
-
-        <nav class="nav-links">
-
-            <a href="{% url 'home' %}">Home</a>
-
-            <a href="#opportunities">Explore</a>
-
-            <a href="/admin/">Admin</a>
-
-            <a href="{% url 'create_opportunity' %}" class="nav-button">
-                Post Opportunity
-            </a>
-
-        </nav>
-
-    </header>
-
-
-    <!-- Hero Section -->
+{% block content %}
+<main>
     <section class="hero">
-
-        <div class="hero-content">
-
-            <span class="hero-tag">
-                A Platform for Ideas and Innovation
-            </span>
-
-            <h1>
-                Connect. Collaborate.
-                <span>Create.</span>
-            </h1>
-
-            <p>
-                Discover meaningful opportunities, collaborate with talented
-                people, build innovative solutions, and turn your ideas into
-                real-world impact.
-            </p>
-
-            <a href="#opportunities" class="primary-button">
-                Explore Opportunities
-            </a>
-
+        <div class="hero-copy">
+            <span class="eyebrow"><span class="eyebrow-dot"></span> A launchpad for what’s next</span>
+            <h1>Make room<br>for <em>what if.</em></h1>
+            <p class="hero-intro">Find your people. Take on work that matters. Turn the thing you can’t stop thinking about into something real.</p>
+            <div class="hero-actions">
+                <a href="#opportunities" class="button button-lime">Find your next thing <span aria-hidden="true">↘</span></a>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'register_organization' %}" class="text-link">I’m here to hire <span aria-hidden="true">↗</span></a>
+                {% endif %}
+            </div>
+            <div class="hero-footnote"><span class="sparkle" aria-hidden="true">✳</span> Built for doers, dreamers &amp; everyone in between</div>
         </div>
-
+        <div class="hero-art" aria-label="A playful illustration of connected ideas">
+            <div class="art-orbit orbit-one"></div>
+            <div class="art-orbit orbit-two"></div>
+            <div class="art-sun"><span>MAKE<br>IT REAL</span></div>
+            <span class="art-star star-one" aria-hidden="true">✳</span>
+            <span class="art-star star-two" aria-hidden="true">✦</span>
+            <div class="art-note note-top"><span class="note-icon">↗</span><span>YOUR NEXT<br>CHAPTER</span></div>
+            <div class="art-note note-bottom"><span class="note-icon note-icon-lime">✳</span><span>GOOD IDEAS<br>GROW HERE</span></div>
+            <span class="art-caption">Curiosity looks good on you.</span>
+        </div>
     </section>
 
+    {% if user.is_authenticated and user.role == 'ORGANIZATION' and user.organization_status == 'PENDING' or user.is_authenticated and user.role == 'ORGANIZATION' and user.organization_status == 'REJECTED' %}
+        <section class="account-prompt">
+            {% if user.organization_status == 'PENDING' and user.organization_profile %}
+                <span class="prompt-symbol" aria-hidden="true">✳</span>
+                <div><strong>Your profile is with our team.</strong><p>We’ll let you know when your organization has been verified.</p></div>
+                <span class="prompt-status">IN REVIEW</span>
+            {% elif user.organization_status == 'REJECTED' and user.organization_profile %}
+                <span class="prompt-symbol" aria-hidden="true">↗</span>
+                <div><strong>Your profile needs an update.</strong><p>{{ user.organization_profile.admin_remarks|default:"Review the administrator’s notes, update your details, and resubmit." }}</p></div>
+                <a href="{% url 'complete_organization_profile' %}" class="prompt-link">Update profile <span aria-hidden="true">↗</span></a>
+            {% else %}
+                <span class="prompt-symbol" aria-hidden="true">↗</span>
+                <div><strong>One last step before you can post.</strong><p>Complete your organization profile so we can verify your team.</p></div>
+                <a href="{% url 'complete_organization_profile' %}" class="prompt-link">Complete profile <span aria-hidden="true">↗</span></a>
+            {% endif %}
+        </section>
+    {% endif %}
 
-    <!-- Opportunities Section -->
-    <main class="container" id="opportunities">
-
+    <section class="opportunities-section" id="opportunities">
+        <div class="section-topline">
+            <span class="eyebrow"><span class="eyebrow-dot"></span> Open doors, real impact</span>
+            <span class="section-index">01 / THE OPPORTUNITIES</span>
+        </div>
         <div class="section-heading">
-
-            <h2>Discover Opportunities</h2>
-
-            <p>
-                Explore internships and job opportunities shared by
-                verified organizations.
-            </p>
-
+            <div>
+                <h2>Find your next <em>yes.</em></h2>
+                <p>Real opportunities from teams ready to meet you.</p>
+            </div>
+            {% if user.is_authenticated and user.role == 'ORGANIZATION' and user.organization_status == 'APPROVED' %}
+                <a href="{% url 'create_opportunity' %}" class="button button-outline">Post an opportunity <span aria-hidden="true">↗</span></a>
+            {% endif %}
         </div>
 
-
         {% if opportunities %}
-
             <div class="opportunity-grid">
-
                 {% for opportunity in opportunities %}
-
                     <article class="opportunity-card">
-
-                        <span class="card-label">
-                            {{ opportunity.get_opportunity_type_display }}
-                        </span>
-
-                        <h3>
-                            {{ opportunity.title }}
-                        </h3>
-
-                        <p class="card-organization">
-                            {{ opportunity.organization.organization_name }}
-                        </p>
-
-                        <p>
-                            {{ opportunity.description }}
-                        </p>
-
-                        <p>
-                            <strong>Work Mode:</strong>
-                            {{ opportunity.get_work_mode_display }}
-                        </p>
-
-                        <p>
-                            <strong>Location:</strong>
-                            {{ opportunity.location|default:"Not specified" }}
-                        </p>
-
-                        <p>
-                            <strong>Required Skills:</strong>
-                            {{ opportunity.required_skills|default:"Not specified" }}
-                        </p>
-
-                        <a
-                            href="{% url 'apply_for_opportunity' opportunity.id %}"
-                            class="card-button"
-                        >
-                            Apply Now →
-                        </a>
-
+                        <div class="card-topline">
+                            <span class="card-label">{{ opportunity.get_opportunity_type_display }}</span>
+                            <span class="card-mode">{{ opportunity.get_work_mode_display }}</span>
+                        </div>
+                        <h3>{{ opportunity.title }}</h3>
+                        <p class="card-organization">{{ opportunity.organization.organization_name }}</p>
+                        <p class="card-description">{{ opportunity.description|truncatewords:28 }}</p>
+                        <div class="card-meta">
+                            <span><span aria-hidden="true">⌖</span> {{ opportunity.location|default:"Location flexible" }}</span>
+                            {% if opportunity.application_deadline %}<span>Apply by {{ opportunity.application_deadline|date:"M j" }}</span>{% endif %}
+                        </div>
+                        {% if opportunity.required_skills %}
+                            <p class="skill-preview"><strong>Looking for</strong> {{ opportunity.required_skills|truncatewords:12 }}</p>
+                        {% endif %}
+                        {% if user.is_authenticated and user.role == 'INDIVIDUAL' %}
+                            {% if opportunity.id in applied_opportunity_ids %}
+                                <div class="application-applied">
+                                    <span class="applied-badge"><span aria-hidden="true">✓</span> You’ve applied</span>
+                                    <a href="{% url 'my_applications' %}" class="text-link">View your application ↗</a>
+                                </div>
+                            {% else %}
+                                <a href="{% url 'apply_for_opportunity' opportunity.id %}" class="card-button">I’m interested <span aria-hidden="true">↗</span></a>
+                            {% endif %}
+                        {% elif not user.is_authenticated %}
+                            <a href="{% url 'login' %}?next={% url 'apply_for_opportunity' opportunity.id %}" class="card-button">Log in to apply <span aria-hidden="true">↗</span></a>
+                        {% endif %}
                     </article>
-
                 {% endfor %}
-
             </div>
-
         {% else %}
-
             <div class="empty-state">
-
-                <h3>No opportunities available right now</h3>
-
-                <p>
-                    New opportunities from verified organizations will
-                    appear here. Please check back soon!
-                </p>
-
+                <span class="empty-spark" aria-hidden="true">✳</span>
+                <h3>Something good is taking shape.</h3>
+                <p>There aren’t any opportunities just yet. Check back soon — new ones are on the way.</p>
             </div>
-
         {% endif %}
+    </section>
 
-    </main>
+    {% if not user.is_authenticated or user.role == 'INDIVIDUAL' %}
+        <section class="community-banner">
+            <div>
+                <span class="eyebrow"><span class="eyebrow-dot"></span> Ideas need a team</span>
+                <h2>Big problems.<br><em>Better together.</em></h2>
+                <p>Find a challenge worth solving, build a team, and show the world what you can make.</p>
+            </div>
+            <a href="{% url 'community:challenge_list' %}" class="button button-lime">Explore challenges <span aria-hidden="true">↗</span></a>
+            <span class="community-mark" aria-hidden="true">✳</span>
+        </section>
+    {% endif %}
 
-
-    <!-- Footer -->
-    <footer class="footer">
-
-        <p>
-            © 2026 CampusCollab. Connect. Collaborate. Create.
-        </p>
-
-    </footer>
-
-</body>
-</html>
+    {% if not user.is_authenticated %}
+        <section class="join-banner">
+            <div><span class="eyebrow">Your next chapter starts here</span><h2>Curiosity is a<br>great place to start.</h2></div>
+            <div class="join-actions">
+                <a href="{% url 'register_individual' %}" class="button button-dark">Join as a talent <span aria-hidden="true">↗</span></a>
+                <a href="{% url 'register_organization' %}" class="button button-paper">Join as an organization <span aria-hidden="true">↗</span></a>
+            </div>
+            <span class="banner-star" aria-hidden="true">✳</span>
+        </section>
+    {% endif %}
+</main>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}{{ challenge.title }} — OpenQuest challenges{% endblock %}
+
+{% block content %}
+<main class="community-page challenge-detail-page">
+    <a href="{% url 'community:challenge_list' %}" class="back-link">← All challenges</a>
+    <section class="challenge-detail-hero">
+        <div class="challenge-detail-copy">
+            <div class="challenge-card-top">
+                <span class="challenge-category">{{ challenge.get_category_display }}</span>
+                <span class="challenge-status status-{{ challenge.status|lower }}">{{ challenge.get_status_display }}</span>
+            </div>
+            <span class="challenge-type-label">{{ challenge.get_challenge_type_display }}</span>
+            <h1>{{ challenge.title }}</h1>
+            <p class="challenge-detail-byline">Posted by <strong>{{ challenge.created_by.username }}</strong>{% if challenge.location %} · ⌖ {{ challenge.location }}{% endif %}{% if challenge.deadline %} · Deadline {{ challenge.deadline|date:"F j, Y" }}{% endif %}</p>
+        </div>
+        <div class="challenge-detail-symbol" aria-hidden="true">✳</div>
+    </section>
+
+    <section class="challenge-detail-content">
+        <div class="challenge-main-column">
+            <article class="community-panel">
+                <div class="community-panel-heading"><span class="panel-index">01</span><h2>The challenge</h2></div>
+                <div class="challenge-long-description">{{ challenge.description|linebreaks }}</div>
+            </article>
+
+            <section class="community-panel" id="teams">
+                <div class="community-panel-heading">
+                    <span class="panel-index">02</span><h2>Teams <span class="count-pill">{{ teams|length }}</span></h2>
+                </div>
+                {% if teams %}
+                    <div class="team-list">
+                        {% for team in teams %}
+                            <article class="team-card">
+                                <div class="team-card-heading">
+                                    <div><h3>{{ team.name }}</h3><p>Led by {{ team.leader.username }}</p></div>
+                                    <span class="team-count">{{ team.memberships.count }} member{{ team.memberships.count|pluralize }}</span>
+                                </div>
+                                {% if team.description %}<p class="team-description">{{ team.description }}</p>{% endif %}
+                                <div class="team-avatars" aria-label="Team members">
+                                    {% for membership in team.memberships.all %}
+                                        <span title="{{ membership.user.username }}">{{ membership.user.username|slice:":1"|upper }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="team-actions">
+                                    {% if can_participate and team_signup_open and team.id not in my_team_ids %}
+                                        <form method="post" action="{% url 'community:join_team' challenge.id team.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="button button-dark">Join this team <span aria-hidden="true">↗</span></button>
+                                        </form>
+                                    {% elif can_participate and team.id in my_team_ids %}
+                                        <span class="member-note">You’re on this team</span>
+                                    {% endif %}
+                                    {% if can_participate and submission_open and team.id in my_team_ids %}
+                                        <a class="text-link" href="{% url 'community:submit_project' challenge.id team.id %}">Submit your work ↗</a>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="community-empty-copy">No teams yet. Be the first to bring people together.</p>
+                {% endif %}
+
+                {% if can_participate and team_signup_open %}
+                    <details class="inline-create">
+                        <summary><span aria-hidden="true">＋</span> Start a team</summary>
+                        <form method="post" action="{% url 'community:create_team' challenge.id %}" class="styled-form compact-form">
+                            {% csrf_token %}
+                            {% if team_form.non_field_errors %}<div class="form-errors">{{ team_form.non_field_errors }}</div>{% endif %}
+                            {% for field in team_form %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                                </div>
+                            {% endfor %}
+                            <button type="submit" class="button button-coral">Create team <span aria-hidden="true">↗</span></button>
+                        </form>
+                    </details>
+                {% elif not user.is_authenticated and team_signup_open %}
+                    <a class="text-link" href="{% url 'login' %}?next={{ request.path }}">Log in to join or start a team ↗</a>
+                {% endif %}
+            </section>
+
+            <section class="community-panel">
+                <div class="community-panel-heading"><span class="panel-index">03</span><h2>What teams made <span class="count-pill">{{ submissions|length }}</span></h2></div>
+                {% if submissions %}
+                    <div class="submission-list">
+                        {% for submission in submissions %}
+                            <article class="submission-card">
+                                <div class="submission-card-heading">
+                                    <div><span class="submission-team">{{ submission.team.name }}</span><h3>{{ submission.title }}</h3></div>
+                                    <span class="challenge-status status-{{ submission.status|lower }}">{{ submission.get_status_display }}</span>
+                                </div>
+                                <p>{{ submission.description|truncatewords:35 }}</p>
+                                {% if submission.github_url or submission.demo_url %}
+                                    <div class="submission-links">
+                                        {% if submission.github_url %}<a href="{{ submission.github_url }}" target="_blank" rel="noopener noreferrer">Source code ↗</a>{% endif %}
+                                        {% if submission.demo_url %}<a href="{{ submission.demo_url }}" target="_blank" rel="noopener noreferrer">Try the demo ↗</a>{% endif %}
+                                    </div>
+                                {% endif %}
+                                {% if submission.attachment and user.is_authenticated %}
+                                    {% if can_manage or can_review or submission.team_id in my_team_ids %}
+                                        <a class="text-link review-link" href="{% url 'community:download_submission_attachment' challenge.id submission.id %}">Download team attachment ↗</a>
+                                    {% endif %}
+                                {% endif %}
+                                {% if can_review %}
+                                    <a class="text-link review-link" href="{% url 'community:review_submission' challenge.id submission.id %}">Review this work ↗</a>
+                                    {% for review in submission.reviews.all %}
+                                        {% if review.feedback %}<p class="review-feedback"><strong>{{ review.get_decision_display }} · {{ review.reviewer.username }}:</strong> {{ review.feedback }}</p>{% endif %}
+                                    {% endfor %}
+                                {% elif submission.team_id in my_team_ids %}
+                                    {% for review in submission.reviews.all %}
+                                        {% if review.feedback %}<p class="review-feedback"><strong>{{ review.get_decision_display }}:</strong> {{ review.feedback }}</p>{% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="community-empty-copy">The first submission could be yours.</p>
+                {% endif %}
+            </section>
+        </div>
+
+        <aside class="challenge-side-column">
+            {% if can_manage %}
+                <section class="community-panel manage-panel">
+                    <h2>Manage challenge</h2>
+                    <form method="post" action="{% url 'community:update_challenge_status' challenge.id %}" class="styled-form compact-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ status_form.status.id_for_label }}">Status</label>
+                            {{ status_form.status }}
+                        </div>
+                        <button type="submit" class="button button-dark">Update status <span aria-hidden="true">↗</span></button>
+                    </form>
+                </section>
+            {% endif %}
+            <section class="community-panel conversation-panel">
+                <div class="community-panel-heading"><span class="panel-index">04</span><h2>Conversation <span class="count-pill">{{ comments|length }}</span></h2></div>
+                {% if can_participate %}
+                    <form method="post" action="{% url 'community:add_comment' challenge.id %}" class="styled-form compact-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ comment_form.content.id_for_label }}">{{ comment_form.content.label }}</label>
+                            {{ comment_form.content }}
+                        </div>
+                        <button type="submit" class="button button-coral">Post comment <span aria-hidden="true">↗</span></button>
+                    </form>
+                {% elif not user.is_authenticated %}
+                    <p class="community-empty-copy"><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to join the conversation.</p>
+                {% else %}
+                    <p class="community-empty-copy">Community participation is for individual accounts.</p>
+                {% endif %}
+                <div class="comment-list">
+                    {% for comment in comments %}
+                        <article class="comment-card">
+                            <span class="comment-avatar">{{ comment.author.username|slice:":1"|upper }}</span>
+                            <div><div class="comment-meta"><strong>{{ comment.author.username }}</strong><time datetime="{{ comment.created_at|date:'c' }}">{{ comment.created_at|date:"M j, Y" }}</time></div><p>{{ comment.content|linebreaksbr }}</p></div>
+                        </article>
+                    {% empty %}
+                        <p class="community-empty-copy">No comments yet. Start the conversation.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </aside>
+    </section>
+</main>
+{% endblock %}

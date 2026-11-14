@@ -76,6 +76,17 @@ class Opportunity(models.Model):
                     )
                 })
 
+        if (
+            self.status == self.Status.OPEN
+            and self.application_deadline
+            and self.application_deadline < timezone.localdate()
+        ):
+            raise ValidationError({
+                'application_deadline': (
+                    'Open opportunities cannot have a deadline in the past.'
+                )
+            })
+
     def __str__(self):
         return self.title
 
@@ -133,14 +144,14 @@ class Application(models.Model):
 
     def clean(self):
 
-        if self.applicant and self.applicant.role != 'INDIVIDUAL':
+        if self.applicant_id and self.applicant.role != 'INDIVIDUAL':
             raise ValidationError({
                 'applicant': (
                     'Only individual accounts can apply for opportunities.'
                 )
             })
 
-        if self.opportunity:
+        if self.opportunity_id:
 
             if self.opportunity.status != Opportunity.Status.OPEN:
                 raise ValidationError({
@@ -158,7 +169,7 @@ class Application(models.Model):
                 })
 
             if (
-                self.applicant
+                self.applicant_id
                 and self.opportunity.organization.user_id == self.applicant_id
             ):
                 raise ValidationError({

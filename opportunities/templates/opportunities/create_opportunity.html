@@ -1,26 +1,38 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Opportunity | CampusCollab</title>
-</head>
-<body>
+{% block title %}Post an opportunity — OpenQuest{% endblock %}
 
-    <h1>Create a New Opportunity</h1>
-
-    <p>Share an internship or job opportunity with students.</p>
-
-    <form method="POST">
-        {% csrf_token %}
-
-        {{ form.as_p }}
-
-        <button type="submit">Publish Opportunity</button>
-    </form>
-
-    <a href="/">Back to Home</a>
-
-</body>
-</html>
+{% block content %}
+<main class="form-page opportunity-form-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> Good work deserves good people</span>
+        <h1>Put the<br>right idea<br><em>out there.</em></h1>
+        <p>Write a clear, human description of the role. The right person should be able to picture themselves doing the work.</p>
+        <div class="aside-tip"><span aria-hidden="true">✳</span><p><strong>A little tip</strong><br>Be specific about the skills and impact. The best people are looking for work that means something.</p></div>
+        <span class="aside-note">OPENQUEST / POST AN OPPORTUNITY</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">01 <span></span> OPPORTUNITY DETAILS</span>
+            <h2>Tell us about the role.</h2>
+            <p>Make it easy for the right person to say, “That’s for me.”</p>
+        </div>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <p class="form-footnote"><span aria-hidden="true">*</span> Required fields.</p>
+            <button type="submit" class="button button-coral form-submit">Publish opportunity <span aria-hidden="true">↗</span></button>
+        </form>
+    </section>
+</main>
+{% endblock %}

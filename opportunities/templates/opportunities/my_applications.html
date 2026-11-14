@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}My applications — OpenQuest{% endblock %}
+
+{% block content %}
+<main class="dashboard-page">
+    <section class="dashboard-hero">
+        <div>
+            <span class="eyebrow"><span class="eyebrow-dot"></span> Your next chapter</span>
+            <h1>My <em>applications.</em></h1>
+            <p>Keep track of the opportunities you’ve raised your hand for.</p>
+        </div>
+        <a href="{% url 'home' %}#opportunities" class="button button-lime">Find another opportunity <span aria-hidden="true">↗</span></a>
+    </section>
+
+    {% if applications %}
+        <section class="dashboard-list" aria-label="Your applications">
+            {% for application in applications %}
+                <article class="application-card">
+                    <div class="application-card-heading">
+                        <div>
+                            <span class="application-organization">{{ application.opportunity.organization.organization_name }}</span>
+                            <h2>{{ application.opportunity.title }}</h2>
+                            <p>{{ application.opportunity.get_opportunity_type_display }} · {{ application.opportunity.get_work_mode_display }} · Applied {{ application.applied_at|date:"M j, Y" }}</p>
+                        </div>
+                        <span class="challenge-status status-{{ application.status|lower }}">{{ application.get_status_display }}</span>
+                    </div>
+                    {% if application.cover_letter %}<p class="application-cover-letter">{{ application.cover_letter|linebreaksbr }}</p>{% endif %}
+                    <div class="application-card-actions">
+                        {% if application.resume %}
+                            <a class="text-link" href="{% url 'download_resume' application.id %}">Download my resume ↗</a>
+                        {% endif %}
+                        {% if application.status == 'SUBMITTED' or application.status == 'UNDER_REVIEW' or application.status == 'SHORTLISTED' %}
+                            <form method="post" action="{% url 'withdraw_application' application.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="button button-outline">Withdraw application</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+    {% else %}
+        <div class="empty-state dashboard-empty">
+            <span class="empty-spark" aria-hidden="true">✳</span>
+            <h2>Your next yes is still out there.</h2>
+            <p>You haven’t applied to an opportunity yet. Find a role that feels like you.</p>
+            <a href="{% url 'home' %}#opportunities" class="card-button">Explore opportunities <span aria-hidden="true">↗</span></a>
+        </div>
+    {% endif %}
+</main>
+{% endblock %}

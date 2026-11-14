@@ -1,96 +1,38 @@
+{% extends "base.html" %}
 
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}Join OpenQuest — {{ account_type }} account{% endblock %}
 
-    <title>{{ account_type }} Registration | CampusCollab</title>
-
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-
-<body>
-
-    <header class="navbar">
-        <a href="{% url 'home' %}" class="brand">
-            CampusCollab.
-        </a>
-
-        <nav class="nav-links">
-            <a href="{% url 'home' %}">Home</a>
-        </nav>
-    </header>
-
-
-    <main class="container">
-
-        <div class="section-heading">
-            <h2>Create Your {{ account_type }} Account</h2>
-
-            <p>
-                Join CampusCollab and start connecting, collaborating
-                and creating.
-            </p>
+{% block content %}
+<main class="form-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> Your people are out there</span>
+        <h1>Big things<br>start with<br><em>one hello.</em></h1>
+        <p>Make connections that move good ideas forward. Your next opportunity is closer than you think.</p>
+        <div class="aside-stamp" aria-hidden="true">OQ<br><span>LET’S<br>GO</span></div>
+        <span class="aside-note">OPENQUEST / {{ account_type|upper }}</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">01 <span></span> CREATE YOUR ACCOUNT</span>
+            <h2>Join as {{ account_type|lower }}.</h2>
+            <p>Just the essentials. You can fill in the rest later.</p>
         </div>
-
-
-        <div class="opportunity-card">
-
-            <form method="POST">
-                {% csrf_token %}
-
-                {% if form.non_field_errors %}
-                    <div class="form-errors">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-
-                {% for field in form %}
-
-                    <div class="form-group">
-
-                        <label for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                        </label>
-
-                        {{ field }}
-
-                        {% if field.help_text %}
-                            <small>{{ field.help_text|safe }}</small>
-                        {% endif %}
-
-                        {% for error in field.errors %}
-                            <p class="field-error">{{ error }}</p>
-                        {% endfor %}
-
-                    </div>
-
-                {% endfor %}
-
-
-                <button type="submit" class="primary-button">
-                    Create Account
-                </button>
-
-            </form>
-
-        </div>
-
-        <p style="text-align:center; margin-top:20px;">
-            Already have an account?
-            <a href="#" style="color:#4f46e5;">
-                Login coming soon
-            </a>
-        </p>
-
-    </main>
-
-
-    <footer class="footer">
-        <p>© 2026 CampusCollab. Connect. Collaborate. Create.</p>
-    </footer>
-
-</body>
-</html>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %}<span class="required-mark" aria-hidden="true">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="button button-coral form-submit">Create my account <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="form-switch">Already part of the quest? <a href="{% url 'login' %}">Log in <span aria-hidden="true">↗</span></a></p>
+    </section>
+</main>
+{% endblock %}

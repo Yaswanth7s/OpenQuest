@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Log in — OpenQuest{% endblock %}
+
+{% block content %}
+<main class="form-page login-page">
+    <aside class="form-aside">
+        <span class="eyebrow"><span class="eyebrow-dot"></span> Good to have you back</span>
+        <h1>Your next<br>chapter is<br><em>waiting.</em></h1>
+        <p>Pick up where you left off. There’s always something worth discovering.</p>
+        <div class="aside-stamp" aria-hidden="true">OQ<br><span>WELCOME<br>BACK</span></div>
+        <span class="aside-note">OPENQUEST / YOUR SPACE</span>
+    </aside>
+    <section class="form-panel">
+        <div class="form-panel-heading">
+            <span class="step-label">BACK IN THE MIX</span>
+            <h2>Welcome back.</h2>
+            <p>Log in to keep your momentum going.</p>
+        </div>
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endfor %}
+            <p class="forgot-password"><a href="{% url 'password_reset' %}">Forgot your password? <span aria-hidden="true">↗</span></a></p>
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            <button type="submit" class="button button-coral form-submit">Log in <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="form-switch">New around here? <a href="{% url 'register' %}">Create an account <span aria-hidden="true">↗</span></a></p>
+    </section>
+</main>
+{% endblock %}
